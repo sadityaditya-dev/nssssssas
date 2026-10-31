@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080f1c">
+  <title>OrbitGuard | CubeSat Swarm Mission Control</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><span></span><span></span><span></span><span></span></div>
+        <div><div class="brand-name">ORBITGUARD</div><div class="brand-sub">SWARM AUTONOMY LAB</div></div>
+      </div>
+      <div class="mission-chip"><span class="live-dot" id="sidebarLiveDot"></span><span id="sidebarMode">SIMULATION STANDBY</span></div>
+      <nav class="nav-list" aria-label="Dashboard views">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">◈</span><span>Mission overview</span><span class="nav-count">01</span></button>
+        <button class="nav-item" data-view="fleet"><span class="nav-icon">◎</span><span>Satellite fleet</span><span class="nav-count">02</span></button>
+        <button class="nav-item" data-view="failures"><span class="nav-icon">⚑</span><span>Failure monitor</span><span class="nav-count" id="failureNavCount">00</span></button>
+        <button class="nav-item" data-view="roles"><span class="nav-icon">⇄</span><span>Autonomy & roles</span><span class="nav-count">04</span></button>
+        <button class="nav-item" data-view="formation"><span class="nav-icon">⌘</span><span>Formation control</span><span class="nav-count">05</span></button>
+        <button class="nav-item" data-view="coverage"><span class="nav-icon">▦</span><span>Coverage models</span><span class="nav-count">06</span></button>
+        <button class="nav-item" data-view="communications"><span class="nav-icon">⌁</span><span>Communications</span><span class="nav-count">07</span></button>
+        <button class="nav-item" data-view="recovery"><span class="nav-icon">✓</span><span>Recovery verification</span><span class="nav-count">08</span></button>
+        <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span><span>Mission settings</span><span class="nav-count">09</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-metric"><span>ACTIVE SPACECRAFT</span><strong><span id="sideActive">6</span><small> / 6</small></strong><div class="mini-track"><i id="sideActiveBar" style="width:100%"></i></div></div>
+        <div class="sidebar-metric"><span>MISSION CLOCK</span><strong id="sideClock">00:00.0</strong><small id="sideProgress">0% elapsed</small></div>
+        <div class="build-label"><span class="build-led"></span> LOCAL RESEARCH SIM <span class="build-ver">v1.0</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb"><span>MISSION CONTROL</span><b>/</b><span id="breadcrumbPage">OVERVIEW</span></div>
+        <div class="topbar-right"><div class="mode-pill"><span class="live-dot"></span><span>LOCAL SIMULATION</span></div><div class="clock-block"><span>SIM TIME</span><strong id="headerClock">00:00.0</strong></div></div>
+      </header>
+      <div class="page-heading">
+        <div><div class="eyebrow">AUTONOMOUS ORBITAL SYSTEMS <span class="eyebrow-line"></span> MISSION 06</div><h1 id="pageTitle">Swarm mission overview</h1><p id="pageDescription">Live state, health, formation, and recovery performance of a six-spacecraft swarm.</p></div>
+        <div class="run-controls">
+          <div class="run-status"><span class="status-indicator" id="runStatusDot"></span><span id="runStatusText">READY</span></div>
+          <label class="speed-control">SIM SPEED<select id="liveSpeed" aria-label="Live simulation speed"><option value="1">1×</option><option value="2">2×</option><option value="5" selected>5×</option><option value="10">10×</option><option value="20">20×</option><option value="50">50×</option></select></label>
+          <button class="btn btn-primary" id="startBtn"><span>▶</span> Start</button>
+          <button class="btn btn-secondary" id="pauseBtn" disabled>Ⅱ Pause</button>
+          <button class="btn btn-quiet" id="resetBtn">↻ Reset</button>
+        </div>
+      </div>
+
+      <section class="view active" id="view-overview">
+        <div class="kpi-grid">
+          <article class="kpi-card"><div class="kpi-label">OPERATIONAL SATELLITES <span class="kpi-glyph">◉</span></div><div class="kpi-value"><span id="kpiActive">6</span><small>/ 6</small></div><div class="kpi-foot"><span class="foot-indicator" id="activeFootDot"></span><span id="activeFoot">All spacecraft in formation</span></div><div class="kpi-progress"><i id="activeKpiBar" style="width:100%"></i></div></article>
+          <article class="kpi-card"><div class="kpi-label">GRID AREA COVERED <span class="kpi-glyph">▦</span></div><div class="kpi-value"><span id="kpiCoverage">—</span><small>%</small></div><div class="kpi-foot"><span id="coverageDelta" class="delta-neutral">Baseline —</span><span class="muted">vs initial</span></div><div class="kpi-progress"><i id="coverageKpiBar" style="width:0%"></i></div></article>
+          <article class="kpi-card"><div class="kpi-label">NETWORK CONNECTIVITY <span class="kpi-glyph">⌁</span></div><div class="kpi-value"><span id="kpiConnectivity">—</span><small>%</small></div><div class="kpi-foot"><span id="kpiLinks">0 live links</span><span id="networkPill" class="mini-pill">MESH</span></div><div class="kpi-progress"><i id="connectivityKpiBar" style="width:0%"></i></div></article>
+          <article class="kpi-card"><div class="kpi-label">FORMATION RMS ERROR <span class="kpi-glyph">⌖</span></div><div class="kpi-value"><span id="kpiFormation">—</span><small>m</small></div><div class="kpi-foot"><span>Convergence threshold</span><strong>1,000 m</strong></div><div class="kpi-progress"><i id="formationKpiBar" style="width:0%"></i></div></article>
+          <article class="kpi-card"><div class="kpi-label">HEARTBEAT DELIVERY <span class="kpi-glyph">⇄</span></div><div class="kpi-value"><span id="kpiHeartbeat">—</span><small>%</small></div><div class="kpi-foot"><span id="heartbeatCount">0 delivered / 0 dropped</span></div><div class="kpi-progress"><i id="heartbeatKpiBar" style="width:0%"></i></div></article>
+          <article class="kpi-card status-kpi"><div class="kpi-label">MISSION RECOVERY STATUS <span class="kpi-glyph">◇</span></div><div class="status-word" id="kpiMissionStatus">NOMINAL</div><div class="kpi-foot"><span id="kpiRecoveryFoot">Awaiting simulation</span></div><div class="status-underline" id="statusUnderline"></div></article>
+        </div>
+        <div class="dashboard-grid overview-grid">
+          <section class="panel formation-panel span-7">
+            <div class="panel-heading"><div><div class="panel-kicker">RELATIVE ORBIT · LVLH</div><h2>Formation geometry</h2></div><div class="panel-tools"><span class="legend"><i class="legend-dot operational"></i>Active</span><span class="legend"><i class="legend-dot failed"></i>Failed</span><span class="legend"><i class="legend-dot target"></i>Target</span><button class="icon-button" title="Open formation view" data-go="formation">↗</button></div></div>
+            <div class="chart-wrap formation-chart-wrap"><div id="formationChart" class="svg-chart"></div></div>
+            <div class="chart-footer"><span><i class="legend-line"></i>Motion trail (simulated)</span><span id="formationFooter">Reference frame: LVLH · axes in km</span></div>
+          </section>
+          <section class="panel coverage-panel span-5">
+            <div class="panel-heading"><div><div class="panel-kicker">OBSERVATION REGION</div><h2>Coverage footprint</h2></div><button class="icon-button" title="Open coverage view" data-go="coverage">↗</button></div>
+            <div class="coverage-canvas-wrap"><canvas id="overviewCoverageCanvas" width="560" height="410" aria-label="Current coverage grid and sensor footprints"></canvas></div>
+            <div class="coverage-legend"><span><i class="coverage-key covered"></i>Covered grid</span><span><i class="coverage-key uncovered"></i>Coverage gap</span><span><i class="coverage-key sensor"></i>Sensor footprint</span></div>
+            <div class="coverage-summary"><div><span>COVERED CELLS</span><strong id="overviewCoveredCells">—</strong></div><div><span>ACTIVE SENSORS</span><strong id="overviewSensors">—</strong></div><div><span>UNCOVERED</span><strong id="overviewUncovered">—</strong></div></div>
+          </section>
+        </div>
+        <div class="dashboard-grid second-row">
+          <section class="panel span-7"><div class="panel-heading"><div><div class="panel-kicker">PERFORMANCE TRACE</div><h2>Coverage recovery over time</h2></div><span class="small-tag" id="coveragePlotCaption">Waiting for data</span></div><div id="coverageHistoryChart" class="line-chart"></div><div class="chart-footer"><span>Grid coverage (%)</span><span id="coverageTraceRange">0–100%</span></div></section>
+          <section class="panel span-5"><div class="panel-heading"><div><div class="panel-kicker">AUTONOMOUS RESPONSE</div><h2>Recovery pipeline</h2></div><button class="icon-button" data-go="recovery" title="Open recovery verification">↗</button></div><div id="pipelineList" class="pipeline-list"></div></section>
+        </div>
+        <div class="panel event-panel"><div class="panel-heading"><div><div class="panel-kicker">FLIGHT COMPUTER EVENT LOG</div><h2>Recent activity</h2></div><button class="text-button" data-go="failures">View all events ↗</button></div><div id="overviewEvents" class="event-list compact"></div></div>
+      </section>
+
+      <section class="view" id="view-fleet">
+        <div class="section-summary"><div><h2>Fleet telemetry</h2><p>Live state vectors, hardware capability, power proxy, and individual sensor contribution.</p></div><div class="summary-tag" id="fleetSummary">6 spacecraft registered</div></div>
+        <div id="fleetCards" class="fleet-cards"></div>
+        <section class="panel table-panel"><div class="panel-heading"><div><div class="panel-kicker">TELEMETRY REGISTER</div><h2>Satellite state table</h2></div><span class="small-tag">SI units · x/y local frame</span></div><div class="table-scroll"><table><thead><tr><th>ID / STATUS</th><th>ASSIGNED ROLE</th><th>POSITION x / y (km)</th><th>VELOCITY (m/s)</th><th>ENERGY*</th><th>Δv BUDGET</th><th>NEAREST (km)</th><th>SENSOR CONTRIBUTION</th><th>HEALTH FLAGS</th></tr></thead><tbody id="fleetTable"></tbody></table></div><div class="table-note">*Normalized energy indicator is an illustrative software model, not a battery or spacecraft power-system simulation.</div></section>
+      </section>
+
+      <section class="view" id="view-failures">
+        <div class="section-summary"><div><h2>Failure detection & fault injection</h2><p>Separate confirmed modeled failures from communication suspicions and temporary outages.</p></div><div class="status-chip-row" id="failureSummaryChips"></div></div>
+        <div class="dashboard-grid">
+          <section class="panel span-7"><div class="panel-heading"><div><div class="panel-kicker">FAULT DETECTOR</div><h2>Satellite health classification</h2></div><span class="small-tag">Heartbeat timeout: <b id="timeoutThreshold">3</b> misses</span></div><div id="failureSatelliteList" class="failure-sat-list"></div></section>
+          <section class="panel span-5"><div class="panel-heading"><div><div class="panel-kicker">SCENARIO CONTROLS</div><h2>Inject a fault</h2></div><span class="warning-tag">SIMULATION ONLY</span></div>
+            <form id="faultNowForm" class="form-grid"><label>Satellite<select name="satellite_id" id="faultSat"></select></label><label>Fault type<select name="kind" id="faultKind"><option value="bus_failure">Complete bus failure</option><option value="payload_failure">Sensor / payload failure</option><option value="thruster_degradation">Thruster degradation</option></select></label><label id="faultValueWrap" class="wide-field">Fault parameter<input name="value" id="faultValue" value="observation_highres" /></label><button class="btn btn-danger wide-field" type="submit">Inject fault now</button></form>
+            <div class="sub-divider"></div><div class="panel-subhead"><div><strong>Schedule a future fault</strong><small>Uses simulation time, not wall-clock time.</small></div></div>
+            <form id="faultScheduleForm" class="form-grid"><label>In how many seconds?<input name="offset_s" type="number" min="0" step="0.5" value="10" required></label><label>Satellite<select name="satellite_id" id="scheduleSat"></select></label><label>Fault type<select name="kind" id="scheduleKind"><option value="bus_failure">Complete bus failure</option><option value="payload_failure">Sensor / payload failure</option><option value="thruster_degradation">Thruster degradation</option></select></label><label>Parameter<input name="value" id="scheduleValue" value="observation_highres"></label><button class="btn btn-primary wide-field" type="submit">＋ Add to event queue</button></form>
+            <div class="random-fault-row"><span>Randomized test</span><button type="button" class="small-action" id="randomOneFaultBtn">Inject random 1 failure</button><button type="button" class="small-action" id="randomTwoFaultBtn">Inject random 2 failures</button></div>
+            <div id="faultFormMessage" class="inline-message" aria-live="polite"></div>
+          </section>
+        </div>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">TIMELINE</div><h2>Confirmed faults, suspicions & recovery actions</h2></div><div class="panel-tools"><a class="text-button" href="/api/export/summary.json">Export summary ↗</a><a class="text-button" href="/api/export/metrics.csv">Export metrics ↓</a></div></div><div id="failureEventTimeline" class="event-list"></div></section>
+      </section>
+
+      <section class="view" id="view-roles">
+        <div class="section-summary"><div><h2>Autonomous role manager</h2><p>Unique role assignment constrained by operational status and installed capabilities; infeasibility is reported rather than hidden.</p></div><div id="assignmentState" class="summary-tag">Assignment not evaluated</div></div>
+        <div class="dashboard-grid"><section class="panel span-7"><div class="panel-heading"><div><div class="panel-kicker">MISSION RESPONSIBILITIES</div><h2>Role allocation</h2></div><span class="small-tag">4 critical roles</span></div><div id="roleAssignments" class="role-grid"></div></section>
+        <section class="panel span-5"><div class="panel-heading"><div><div class="panel-kicker">DECISION EXPLAINABILITY</div><h2>Assignment rationale</h2></div></div><div id="assignmentRationale" class="rationale-list"></div><div class="algorithm-note"><strong>Assignment objective</strong><p>Choose a capability-feasible unique mapping that reduces role-target distance and penalizes unnecessary role switches. The six-satellite search is exact enumeration, not a learned model.</p></div></section></div>
+        <section class="panel table-panel"><div class="panel-heading"><div><div class="panel-kicker">FEASIBILITY MATRIX</div><h2>Satellite-to-role candidate costs</h2></div><span class="small-tag">Lower cost preferred</span></div><div class="table-scroll"><table><thead><tr><th>ROLE</th><th>SATELLITE</th><th>CAPABILITY FEASIBLE</th><th>DISTANCE</th><th>SWITCH</th><th>ENERGY</th><th>Δv</th><th>COMM</th><th>MANEUVER</th><th>COVERAGE REWARD</th><th>TOTAL SCORE</th><th>SELECTED</th></tr></thead><tbody id="assignmentMatrix"></tbody></table></div></section>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">DECISION HISTORY</div><h2>Role-reassignment events</h2></div></div><div id="assignmentEvents" class="event-list"></div></section>
+      </section>
+
+      <section class="view" id="view-formation">
+        <div class="section-summary"><div><h2>Formation reconfiguration</h2><p>Simulated position and velocity feedback with bounded control; monitor targets, separation and convergence.</p></div><div class="summary-tag" id="formationStateTag">Nominal formation</div></div>
+        <div class="dashboard-grid"><section class="panel span-8"><div class="panel-heading"><div><div class="panel-kicker">RELATIVE TRAJECTORIES</div><h2>Trajectory & target positions</h2></div><div class="panel-tools"><span class="legend"><i class="legend-line"></i>Past path</span><span class="legend"><i class="legend-dot target"></i>Target</span></div></div><div id="formationDetailChart" class="svg-chart large-svg-chart"></div><div class="chart-footer"><span>Axes in kilometres · reference LVLH frame</span><span>Control vectors in m/s²</span></div></section>
+        <section class="panel span-4"><div class="panel-heading"><div><div class="panel-kicker">CONTROL HEALTH</div><h2>Convergence metrics</h2></div></div><div class="metric-stack"><div class="metric-row"><span>Formation error RMS</span><strong id="formationRmsDetail">—</strong></div><div class="metric-row"><span>Minimum pair distance</span><strong id="formationMinDist">—</strong></div><div class="metric-row"><span>Separation threshold</span><strong id="formationSafeDist">—</strong></div><div class="metric-row"><span>Δv expended</span><strong id="formationDvUsed">—</strong></div><div class="metric-row"><span>Control saturated</span><strong id="formationSaturated">—</strong></div></div><div id="formationWarning" class="notice-box"></div></section></div>
+        <section class="panel table-panel"><div class="panel-heading"><div><div class="panel-kicker">TARGET STATE COMPARISON</div><h2>Current versus desired positions</h2></div></div><div class="table-scroll"><table><thead><tr><th>SATELLITE</th><th>ROLE</th><th>CURRENT x / y (km)</th><th>TARGET x / y (km)</th><th>POSITION ERROR</th><th>CONTROL uₓ / uᵧ (m/s²)</th><th>MANEUVERING</th></tr></thead><tbody id="formationTable"></tbody></table></div></section>
+        <section class="panel table-panel"><div class="panel-heading"><div><div class="panel-kicker">PAIRWISE SEPARATION</div><h2>Operational-neighbour distances</h2></div></div><div class="table-scroll"><table><thead><tr><th>PAIR</th><th>DISTANCE</th><th>MINIMUM THRESHOLD</th><th>STATUS</th></tr></thead><tbody id="distanceTable"></tbody></table></div><div class="table-note">The separation response is heuristic. Passing the threshold check is not a formal safety guarantee.</div></section>
+      </section>
+
+      <section class="view" id="view-coverage">
+        <div class="section-summary"><div><h2>Mission coverage optimizer</h2><p>Grid-based coverage, active sensor footprints, observation targets, and communication coverage shown as separate metrics.</p></div><div class="summary-tag">Abstract LVLH region · not Earth geography</div></div>
+        <div class="coverage-kpi-grid" id="coverageModelCards"></div>
+        <div class="dashboard-grid"><section class="panel span-7"><div class="panel-heading"><div><div class="panel-kicker">CURRENT STATE · GRID RESOLUTION <span id="coverageGridSize">41 × 151</span></div><h2>Covered and uncovered region</h2></div><span class="small-tag" id="coverageNowBadge">0.00% covered</span></div><div class="coverage-detail-wrap"><canvas id="detailCoverageCanvas" width="760" height="500" aria-label="Grid coverage map with current sensor footprints"></canvas></div><div class="coverage-legend"><span><i class="coverage-key covered"></i>Covered cells</span><span><i class="coverage-key uncovered"></i>Uncovered cells</span><span><i class="coverage-key sensor"></i>Sensor radius</span><span><i class="coverage-key point"></i>Observation point</span></div></section>
+        <section class="panel span-5"><div class="panel-heading"><div><div class="panel-kicker">OBSERVATION TARGETS</div><h2>Point assignment & coverage gaps</h2></div></div><div id="observationPoints" class="observation-point-list"></div><div class="coverage-stat-block"><div><span>Initial coverage</span><strong id="initialCoverageDetail">—</strong></div><div><span>Current coverage</span><strong id="currentCoverageDetail">—</strong></div><div><span>Change from initial</span><strong id="coverageChangeDetail">—</strong></div><div><span>Target</span><strong id="coverageTargetDetail">—</strong></div></div><div id="coverageGapNotice" class="notice-box"></div></section></div>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">MODE COMPARISON</div><h2>Coverage model comparison</h2></div></div><div id="coverageModelTable" class="model-comparison"></div></section>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">TEMPORAL RECOVERY</div><h2>Initial, degraded and current coverage</h2></div></div><div id="coverageHistoryChartDetail" class="line-chart large-line-chart"></div></section>
+      </section>
+
+      <section class="view" id="view-communications">
+        <div class="section-summary"><div><h2>Inter-satellite communications</h2><p>Heartbeat transport, range-limited network topology, packet loss, and reversible communication outages.</p></div><div class="summary-tag" id="commNetSummary">Mesh initialization</div></div>
+        <div class="kpi-grid comm-kpis"><article class="kpi-card"><div class="kpi-label">DELIVERED HEARTBEATS</div><div class="kpi-value"><span id="commDelivered">0</span></div><div class="kpi-foot">Confirmed receive events</div></article><article class="kpi-card"><div class="kpi-label">DROPPED HEARTBEATS</div><div class="kpi-value"><span id="commDropped">0</span></div><div class="kpi-foot">Random packet loss simulation</div></article><article class="kpi-card"><div class="kpi-label">ACTIVE ISL LINKS</div><div class="kpi-value"><span id="commLinks">0</span></div><div class="kpi-foot">Within configured range and capability</div></article><article class="kpi-card"><div class="kpi-label">CURRENT SUSPICIONS</div><div class="kpi-value"><span id="commSuspicions">0</span></div><div class="kpi-foot">Reversible on valid heartbeat recovery</div></article></div>
+        <div class="dashboard-grid"><section class="panel span-7"><div class="panel-heading"><div><div class="panel-kicker">NETWORK TOPOLOGY</div><h2>Live communication graph</h2></div><div class="panel-tools"><span class="legend"><i class="legend-line"></i>Available link</span><span class="legend"><i class="legend-line dashed"></i>Unavailable link</span></div></div><div id="commGraph" class="svg-chart"></div><div class="chart-footer"><span id="commRangeLabel">Range-limited ISL network</span><span id="commComponentsLabel">— connected components</span></div></section>
+        <section class="panel span-5"><div class="panel-heading"><div><div class="panel-kicker">LINK CONTROL</div><h2>Temporary communication outage</h2></div><span class="small-tag">No hardware failure</span></div><p class="body-copy">Isolate a satellite from heartbeat sending and receiving while leaving its bus operational. Watch peers raise suspicions, then restore the link to verify suspicion clearing.</p><form id="commForm" class="form-grid"><label>Satellite<select name="satellite_id" id="commSat"></select></label><label>Action<select name="isolated" id="commAction"><option value="true">Isolate communication</option><option value="false">Restore communication</option></select></label><button type="submit" class="btn btn-primary wide-field">Apply communication state</button></form><div id="commFormMessage" class="inline-message" aria-live="polite"></div><div class="comm-config-list" id="commConfigList"></div></section></div>
+        <section class="panel table-panel"><div class="panel-heading"><div><div class="panel-kicker">LINK REGISTER</div><h2>Pairwise reachability and quality</h2></div></div><div class="table-scroll"><table><thead><tr><th>LINK</th><th>DISTANCE (km)</th><th>STATUS</th><th>QUALITY ESTIMATE</th><th>LOSS MODEL</th></tr></thead><tbody id="linkTable"></tbody></table></div><div class="table-note">Link quality and communication range are simplified software abstractions, not radio link-budget calculations.</div></section>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">HEARTBEAT EVENT STREAM</div><h2>Timeouts, sequence observations & restoration</h2></div></div><div id="commEvents" class="event-list"></div></section>
+      </section>
+
+      <section class="view" id="view-recovery">
+        <div class="section-summary"><div><h2>Recovery verification</h2><p>Machine-evaluated criteria determine whether recovery is complete, reconfiguration is ongoing, or the mission is degraded.</p></div><div id="recoveryVerdict" class="verdict-pill">NOT YET VERIFIED</div></div>
+        <div class="recovery-banner" id="recoveryBanner"><div class="recovery-banner-icon">◇</div><div><div class="banner-eyebrow">CURRENT MISSION VERDICT</div><h2 id="recoveryBannerTitle">Monitoring initial formation</h2><p id="recoveryBannerText">Run a fault scenario to evaluate the self-healing response.</p></div><div class="banner-score"><strong id="recoveryScore">0/7</strong><span>checks passed</span></div></div>
+        <div class="dashboard-grid"><section class="panel span-7"><div class="panel-heading"><div><div class="panel-kicker">RECOVERY ASSERTIONS</div><h2>Verification checklist</h2></div></div><div id="recoveryChecks" class="check-list"></div></section>
+        <section class="panel span-5"><div class="panel-heading"><div><div class="panel-kicker">BEFORE / AFTER</div><h2>Mission performance delta</h2></div></div><div id="recoveryComparison" class="comparison-stack"></div><div class="algorithm-note"><strong>Interpretation</strong><p>Four operational satellites and feasible roles do not guarantee baseline coverage. The dashboard reports a degraded outcome when configured coverage, connectivity, separation, or convergence criteria are unmet.</p></div></section></div>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">END-TO-END PROCESS</div><h2>Mission workflow status</h2></div></div><div id="workflowSteps" class="workflow-steps"></div></section>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">END-TO-END PROCESS</div><h2>Simulation subsystem architecture</h2></div><span class="small-tag">Live state flows through the same model</span></div>
+          <div class="architecture-grid">
+            <article class="architecture-card"><span>01 · SPACECRAFT STATE</span><h3>Satellite model</h3><p>State vector, current role, installed/effective capabilities, health, energy proxy, Δv and thrust authority.</p></article>
+            <article class="architecture-card"><span>02 · PHYSICS & EVENTS</span><h3>Simulation engine</h3><p>RK4 integration of planar HCW dynamics, scheduled events, bounded controls and telemetry snapshots.</p></article>
+            <article class="architecture-card"><span>03 · HEALTH & LINKS</span><h3>Heartbeat / failure monitor</h3><p>Sequence tracking, packet loss, timeout suspicions, temporary link isolation and confirmation of model-injected bus faults.</p></article>
+            <article class="architecture-card"><span>04 · DECISION</span><h3>Role manager</h3><p>Exact candidate enumeration with capability feasibility, target distance, switch cost, energy, Δv, link quality and sensor contribution.</p></article>
+            <article class="architecture-card"><span>05 · CONTROL</span><h3>Formation controller</h3><p>Role target positions, bounded feedback acceleration, maneuver budget consumption and heuristic close-approach response.</p></article>
+            <article class="architecture-card"><span>06 · MISSION VALUE</span><h3>Coverage manager</h3><p>Current footprint union, grid cells, observation points, uncovered gaps, and each sensor's unique coverage contribution.</p></article>
+            <article class="architecture-card"><span>07 · RECOVERY</span><h3>Recovery verifier</h3><p>Checks failed-role exclusion, survivor count, critical role feasibility, connectivity, separation, coverage target and formation convergence.</p></article>
+            <article class="architecture-card"><span>08 · INTERFACE</span><h3>Dashboard API</h3><p>Start/pause/reset, speed, fault scheduling/injection, live telemetry and JSON/CSV exports are connected to this state.</p></article>
+          </div>
+          <div class="sub-divider"></div>
+          <div class="panel-subhead"><strong>Planar HCW relative-motion equations</strong><small>State vector [x, y, vₓ, vᵧ] · metres, seconds and m/s²</small></div>
+          <div class="equation-grid"><code>ẍ − 2nẏ − 3n²x = uₓ</code><code>ÿ + 2nẋ = uᵧ</code></div>
+          <p class="body-copy">The configured mean motion n defines the circular reference orbit. The integrator uses RK4. Sensor footprints and network links are software abstractions in the LVLH frame; the model does not represent Earth-ground geography or certify spacecraft safety.</p>
+        </section>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">LIMITATIONS</div><h2>Model assumptions in this run</h2></div></div><div id="modelLimits" class="limitations-grid"></div></section>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="section-summary"><div><h2>Mission configuration</h2><p>Change model parameters and restart from an initial six-satellite state. Configuration changes reset the simulation clock and event history.</p></div><div class="warning-tag">RESET ON APPLY</div></div>
+        <div class="dashboard-grid"><section class="panel span-7"><div class="panel-heading"><div><div class="panel-kicker">SIMULATION PARAMETERS</div><h2>Physics, coverage & network</h2></div></div>
+          <form id="settingsForm" class="settings-grid">
+            <label>Simulation duration (s)<input type="number" name="duration_s" min="1" max="3600" step="1" value="120" required><small>Total simulation time before auto-stop.</small></label>
+            <label>Integrator step (s)<input type="number" name="dt_s" min="0.02" max="2" step="0.02" value="0.2" required><small>Smaller steps improve numerical resolution but run more slowly.</small></label>
+            <label>Playback speed (sim s / wall s)<input type="number" name="speed" min="0.1" max="50" step="0.5" value="5" required><small>Change playback speed while the simulation is running.</small></label>
+            <label>Heartbeat packet loss (%)<input type="number" name="packet_loss_percent" min="0" max="99" step="1" value="0" required><small>Independent loss probability applied per simulated directed link.</small></label>
+            <label>Heartbeat period (s)<input type="number" name="heartbeat_period_s" min="0.2" max="10" step="0.2" value="1" required></label>
+            <label>Missed periods before suspicion<input type="number" name="missed_heartbeat_threshold" min="1" max="20" step="1" value="3" required></label>
+            <label>Sensor radius (m)<input type="number" name="sensor_radius_m" min="500" max="25000" step="500" value="8000" required><small>Abstract circular footprint in LVLH coordinates.</small></label>
+            <label>ISL communication range (m)<input type="number" name="communication_range_m" min="1000" max="50000" step="500" value="18000" required></label>
+            <label>Minimum separation threshold (m)<input type="number" name="safe_distance_m" min="10" max="5000" step="10" value="250" required><small>Monitored threshold, not a certified safety constraint.</small></label>
+            <label>Required coverage (%)<input type="number" name="coverage_target_pct" min="0" max="100" step="1" value="75" required><small>Mission success threshold for region coverage.</small></label>
+            <label>Random seed<input type="number" name="seed" step="1" value="7" required><small>Reproducible packet-loss sequence.</small></label>
+            <div class="settings-footer"><button class="btn btn-primary" type="submit">Apply settings & reset mission</button><button class="btn btn-secondary" id="restoreDefaultsBtn" type="button">Restore defaults</button></div>
+          </form><div id="settingsMessage" class="inline-message" aria-live="polite"></div>
+        </section><section class="panel span-5"><div class="panel-heading"><div><div class="panel-kicker">INITIAL CONFIGURATION</div><h2>Initial states & onboard capabilities</h2></div></div><div class="initial-formation-list" id="initialFormationList"></div><div class="initial-editor-note">Edit positions, velocities, energy, delta-v budget, thrust authority, and installed capabilities. Changes apply when you reset or apply mission settings.</div><div class="sub-divider"></div><div class="panel-subhead"><strong>Mission role priorities</strong><small>Role eligibility is determined by the capability sets shown below.</small></div><div class="role-priority-list" id="rolePriorityList"></div><div class="algorithm-note"><strong>Numerical model</strong><p>Planar HCW equations are integrated using RK4 in SI units. The reference orbit uses a circular-orbit mean motion assumption. Full 3D perturbations, attitude, detailed power, radio physics, and hardware-in-the-loop are outside this implementation.</p></div></section></div>
+        <section class="panel"><div class="panel-heading"><div><div class="panel-kicker">DEFAULT TEST SCENARIO</div><h2>Fault schedule</h2></div><span class="small-tag">Applied on reset</span></div><div id="settingsFaultSchedule" class="scheduled-event-list"></div><div class="table-note">You can add further faults from the Failure Monitor view during a running simulation.</div></section>
+      </section>
+
+      <footer class="page-footer"><span>ORBITGUARD · LOCAL SIMULATION CONTROL</span><span>Planar research model · No spacecraft command link</span><span id="lastUpdated">Waiting for telemetry</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="modalOverlay" class="modal-overlay hidden"><div class="modal"><div class="panel-kicker">CONFIRM RESET</div><h2>Reset simulation state?</h2><p>This restarts the simulation at t=0, clears generated events and applies the current mission configuration and scheduled faults.</p><div class="modal-actions"><button class="btn btn-secondary" id="cancelResetBtn">Cancel</button><button class="btn btn-danger" id="confirmResetBtn">Reset simulation</button></div></div></div>
+</body>
+</html>

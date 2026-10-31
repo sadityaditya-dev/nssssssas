@@ -1,0 +1,168 @@
+{
+  "simulated_duration_s": 120.0,
+  "integration_step_s": 0.2,
+  "initial_satellites": 6,
+  "operational_satellites": 4,
+  "failed_satellites": [
+    "S2",
+    "S5"
+  ],
+  "final_coverage_fraction": 0.6901954450008077,
+  "final_active_sensors": 2,
+  "heartbeat_delivered": 1972,
+  "heartbeat_dropped": 0,
+  "role_assignment": {
+    "S1": "COORDINATOR",
+    "S4": "MAPPER_1",
+    "S3": "MAPPER_2",
+    "S6": "RELAY"
+  },
+  "assignment_degraded": false,
+  "fault_events": [
+    {
+      "time_s": 19.99999999999996,
+      "requested_time_s": 20.0,
+      "satellite_id": "S2",
+      "kind": "bus_failure",
+      "description": "S2: bus failure; spacecraft removed from operational membership"
+    },
+    {
+      "time_s": 40.00000000000003,
+      "requested_time_s": 40.0,
+      "satellite_id": "S5",
+      "kind": "bus_failure",
+      "description": "S5: bus failure; spacecraft removed from operational membership"
+    }
+  ],
+  "assignment_events": [
+    {
+      "time_s": 0.0,
+      "type": "role_reassignment",
+      "feasible": true,
+      "assignment": {
+        "S1": "COORDINATOR",
+        "S2": "MAPPER_1",
+        "S3": "MAPPER_2",
+        "S4": "TRACKER_1",
+        "S5": "TRACKER_2",
+        "S6": "RELAY"
+      },
+      "active_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "cost": 2268.823022667313,
+      "reason": "feasible"
+    },
+    {
+      "time_s": 19.99999999999996,
+      "type": "role_reassignment",
+      "feasible": true,
+      "assignment": {
+        "S1": "COORDINATOR",
+        "S5": "MAPPER_1",
+        "S3": "MAPPER_2",
+        "S4": "TRACKER_1",
+        "S6": "RELAY"
+      },
+      "active_ids": [
+        "S1",
+        "S3",
+        "S4",
+        "S5",
+        "S6"
+      ],
+      "cost": 19092.850069096712,
+      "reason": "feasible"
+    },
+    {
+      "time_s": 40.00000000000003,
+      "type": "role_reassignment",
+      "feasible": true,
+      "assignment": {
+        "S1": "COORDINATOR",
+        "S4": "MAPPER_1",
+        "S3": "MAPPER_2",
+        "S6": "RELAY"
+      },
+      "active_ids": [
+        "S1",
+        "S3",
+        "S4",
+        "S6"
+      ],
+      "cost": 14071.632671081668,
+      "reason": "feasible"
+    }
+  ],
+  "communication_events": [
+    {
+      "time_s": 22.0,
+      "type": "suspected_unreachable",
+      "observer": "S1",
+      "target": "S2",
+      "reason": "3 consecutive heartbeat periods missed"
+    },
+    {
+      "time_s": 22.0,
+      "type": "suspected_unreachable",
+      "observer": "S3",
+      "target": "S2",
+      "reason": "3 consecutive heartbeat periods missed"
+    },
+    {
+      "time_s": 22.0,
+      "type": "suspected_unreachable",
+      "observer": "S4",
+      "target": "S2",
+      "reason": "3 consecutive heartbeat periods missed"
+    },
+    {
+      "time_s": 22.0,
+      "type": "suspected_unreachable",
+      "observer": "S5",
+      "target": "S2",
+      "reason": "3 consecutive heartbeat periods missed"
+    },
+    {
+      "time_s": 22.0,
+      "type": "suspected_unreachable",
+      "observer": "S6",
+      "target": "S2",
+      "reason": "3 consecutive heartbeat periods missed"
+    },
+    {
+      "time_s": 42.0,
+      "type": "suspected_unreachable",
+      "observer": "S1",
+      "target": "S5",
+      "reason": "3 consecutive heartbeat periods missed"
+    },
+    {
+      "time_s": 42.0,
+      "type": "suspected_unreachable",
+      "observer": "S3",
+      "target": "S5",
+      "reason": "3 consecutive heartbeat periods missed"
+    },
+    {
+      "time_s": 42.0,
+      "type": "suspected_unreachable",
+      "observer": "S4",
+      "target": "S5",
+      "reason": "3 consecutive heartbeat periods missed"
+    },
+    {
+      "time_s": 42.0,
+      "type": "suspected_unreachable",
+      "observer": "S6",
+      "target": "S5",
+      "reason": "3 consecutive heartbeat periods missed"
+    }
+  ],
+  "model_scope": "planar LVLH/Hill-Clohessy-Wiltshire software simulation; not flight-certified"
+}
